@@ -16,7 +16,7 @@ class GenerateHeightMap():
                 boxsize = 1000,
                 # Spectral index for the power spectrum
                 indexlaw = -3.,
-                # Amplitude for power spectrum
+                # Amplitude for power spectrum (not required if map is normalized)
                 amplitude = 1.,
                 # Sigma for the gaussian smoothing
                 sigma = 5.,
