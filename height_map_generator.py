@@ -14,23 +14,26 @@ class GenerateHeightMap():
     def __init__(self,
                 # Number of bins per dimension
                 boxsize = 1000,
+                # Spectral index for the power spectrum
+                indexlaw = -3.,
+                # Amplitude for power spectrum
+                amplitude = 1.,
                 # Sigma for the gaussian smoothing
                 sigma = 5.,
-                # Spectral index for the power spectrum
-                indexlaw = -3.
                 ):
 
         self.boxsize = boxsize
-        self.sigma = sigma
         self.indexlaw = indexlaw
+        self.amplitude = amplitude
+        self.sigma = sigma
         self.field = None
-        self.name = "heightmap_indexlaw_{:+.1f}_sigma_{:.1f}".format(indexlaw,sigma)
+        self.name = "heightmap_gridsize_{:d}_indexlaw_{:+.1f}_sigma_{:.1f}".format(boxsize,indexlaw,sigma)
 
     # Define power spectrum as a power law with an spectral index indexlaw
     # With lower the spectral indexes, small structures are removed
     def powerspec(self, k):
 
-        return k**self.indexlaw
+        return self.amplitude*k**self.indexlaw
 
     # Filter the field with a gaussian window
     def smooth_field(self, field):
@@ -65,7 +68,7 @@ class GenerateHeightMap():
         
         field = pbox.powerbox.PowerBox(self.boxsize, lambda k: self.powerspec(k), dim=2, boxlength=self.boxsize).delta_x()
         field = self.normalize_field(field)
-        #field = self.smooth_field(field)
+        field = self.smooth_field(field)
         self.field = field
 
         return field
@@ -97,11 +100,12 @@ if __name__=="__main__":
     # Spectral index for the power spectrum
     indexlaw = -3.
 
+    # Screen DPI, to get same number of pixels than boxsize
     my_dpi=96
 
     for i in range(Nmaps):
 
-        hmap = GenerateHeightMap(boxsize=boxsize, sigma=sigma, indexlaw=indexlaw)
+        hmap = GenerateHeightMap(boxsize=boxsize, indexlaw=indexlaw, sigma=sigma)
 
         field = hmap.generate_hmap()
 
