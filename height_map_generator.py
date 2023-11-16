@@ -38,7 +38,7 @@ class GenerateHeightMap():
         x, y = np.linspace(0,field.shape[0],num=field.shape[0]), np.linspace(0,field.shape[1],num=field.shape[1])
 
         # Interpolation
-        f = interpolate.interp2d(x,y,field,kind="linear")
+        f = interpolate.RectBivariateSpline(x,y,field)
 
         qx = np.linspace(x[0],x[-1], num = self.boxsize)
         qy = np.linspace(y[0],y[-1], num = self.boxsize)
@@ -65,7 +65,7 @@ class GenerateHeightMap():
         
         field = pbox.powerbox.PowerBox(self.boxsize, lambda k: self.powerspec(k), dim=2, boxlength=self.boxsize).delta_x()
         field = self.normalize_field(field)
-        field = self.smooth_field(field)
+        #field = self.smooth_field(field)
         self.field = field
 
         return field
@@ -97,15 +97,19 @@ if __name__=="__main__":
     # Spectral index for the power spectrum
     indexlaw = -3.
 
+    my_dpi=96
+
     for i in range(Nmaps):
 
         hmap = GenerateHeightMap(boxsize=boxsize, sigma=sigma, indexlaw=indexlaw)
 
         field = hmap.generate_hmap()
 
-        fig, ax = plt.subplots(figsize=(9.,9.))
+        fig, ax = plt.subplots(figsize=(boxsize/my_dpi, boxsize/my_dpi), dpi=my_dpi)
         fig.subplots_adjust(bottom=0, top=1, left=0, right=1)
         ax.imshow(field,vmin=0.,vmax=1.,cmap="Greys")
         plt.axis('off')
         fig.savefig(outpath+"/"+hmap.name+"_"+str(i)+".png", bbox_inches='tight', pad_inches=0)
         fig.clf()
+
+    print("Done!")
